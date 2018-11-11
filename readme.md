@@ -1,5 +1,6 @@
 
 This tool provides the packed image and a ron for amethyst. Uses piston's `texture_packer`.
+prints a function to map the image names to ids to the console.
 
 ```ignore
 git clone git@github.com:PSeitz/spritesheet-generator.git
