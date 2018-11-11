@@ -109,6 +109,7 @@ pub fn to_ron(
         println!("            return {};", i);
         println!("        }}");
     }
+    println!(r#"        panic!("sprite for name not found {{:?}}", name);"#);
     println!("    }}");
     let ron = Ron { 
         spritesheet_width: image_width as f32,
