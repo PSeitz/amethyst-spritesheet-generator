@@ -5,11 +5,11 @@ use image;
 use texture_packer::texture::Texture;
 use texture_packer::{TexturePacker, TexturePackerConfig};
 use texture_packer::exporter::ImageExporter;
+use std::io::Write;
 
-
-use file_texture;
-use spritesheet;
-use spritesheet_generator_config;
+use crate::file_texture;
+use crate::spritesheet;
+use crate::spritesheet_generator_config;
 
 pub fn generate(config: spritesheet_generator_config::SpritesheetGeneratorConfig) {
     // Initial setup
@@ -31,15 +31,24 @@ pub fn generate(config: spritesheet_generator_config::SpritesheetGeneratorConfig
         packer.pack_own(file_textures.file.name, file_textures.texture);
     }
 
-    // Save Json
-    let atlas = spritesheet::to_atlas(
+    // // Save Json
+    // let atlas = spritesheet::to_atlas(
+    //     packer.get_frames(),
+    //     packer.width(),
+    //     packer.height(),
+    // );
+    // let json_path = format!("{}{}.json", output_folder, output_file_name);
+
+    // let json_file = File::create(json_path).unwrap();
+    // serde_json::to_writer_pretty(json_file, &atlas).unwrap();
+
+    let ron_str = spritesheet::to_ron(
         packer.get_frames(),
         packer.width(),
         packer.height(),
-    );
-    let json_path = format!("{}{}.json", output_folder, output_file_name);
-    let json_file = File::create(json_path).unwrap();
-    serde_json::to_writer_pretty(json_file, &atlas).unwrap();
+    ).0;
+    let ron_path = format!("{}{}.ron", output_folder, output_file_name);
+    File::create(ron_path).unwrap().write_all(ron_str.as_bytes()).unwrap();
 
     // Save Image
     let exporter = ImageExporter::export(&packer).unwrap();

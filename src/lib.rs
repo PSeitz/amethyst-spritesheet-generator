@@ -18,5 +18,5 @@ pub mod spritesheet;
 pub mod spritesheet_generator;
 pub mod spritesheet_generator_config;
 
-pub use spritesheet_generator::generate;
-pub use spritesheet_generator_config::SpritesheetGeneratorConfig;
+pub use self::spritesheet_generator::generate;
+pub use self::spritesheet_generator_config::SpritesheetGeneratorConfig;

@@ -1,4 +1,4 @@
-use file_data;
+use crate::file_data;
 use image;
 
 use std::fs;
@@ -21,9 +21,11 @@ pub fn find_all (folder: String) -> Vec<FileTexture> {
                         file_list.extend(find_all(child_folder));
                     } else {
                         let file = file_data::extract(entry.path());
-                        let texture = ImageImporter::import_from_file(&entry.path())
-                            .unwrap();
-                        file_list.push(FileTexture {file, texture});
+                        if let Ok(texture) = ImageImporter::import_from_file(&entry.path()) {
+                            file_list.push(FileTexture {file, texture});
+                        }else{
+                            println!("Ignoring {:?}", entry.path()); 
+                        }
                     }
                 }
             }

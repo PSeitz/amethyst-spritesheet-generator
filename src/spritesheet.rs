@@ -20,6 +20,7 @@ pub struct Frame {
     pub screen: Screen,
 }
 
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Spritesheet {
     #[serde(serialize_with = "ordered_map")]
@@ -60,6 +61,62 @@ pub fn to_atlas(
         .collect();
 
     return Spritesheet { frames: frames_map };
+}
+
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Ron {
+    spritesheet_width: f32,
+    spritesheet_height: f32,
+    sprites: Vec<SpriteRon>
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct SpriteRon {
+    x: f32,
+    y: f32,
+    width: f32,
+    height: f32,
+}
+
+
+pub fn to_ron(
+    frames: &HashMap<String, texture_packer::Frame>,
+    image_width: u32,
+    image_height: u32,
+) -> (String, Vec<String>) {
+    let mut i_to_name = vec![];
+    let frames_map = frames
+        .iter()
+        .enumerate()
+        .map(|(_i, el)| {
+            // let (name, frame)
+            let name = el.0;
+            let frame = el.1;
+            i_to_name.push(name.to_string());
+            SpriteRon {
+                x: frame.frame.x as f32,
+                y: frame.frame.y as f32,
+                width: frame.frame.w as f32,
+                height: frame.frame.h as f32,
+            }
+        })
+        .collect();
+
+    println!("    fn sprite_id_for_name(name: &str) -> usize {{");
+    for (i, name) in i_to_name.iter().enumerate() {
+        println!("        if name==\"{}\"{{",name );
+        println!("            return {};", i);
+        println!("        }}");
+    }
+    println!("    }}");
+    let ron = Ron { 
+        spritesheet_width: image_width as f32,
+        spritesheet_height: image_height as f32,
+        sprites: frames_map
+    };
+
+    (ron::ser::to_string_pretty(&ron, ron::ser::PrettyConfig::default()).unwrap(), i_to_name)
 }
 
 #[cfg(test)]

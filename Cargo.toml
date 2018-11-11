@@ -1,4 +1,5 @@
 [package]
+edition= "2018"
 name = "spritesheet-generator"
 version = "0.4.0"
 authors = ["Rafael Delboni <rafadelboni@gmail.com>"]
@@ -17,3 +18,5 @@ lazy_static = "1.1"
 regex = "1.0.5"
 texture_packer = "0.15.0"
 image = { version = "0.20.0", default-features = true }
+ron = "0.4.0"
+clap = "2.32.0"
