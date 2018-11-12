@@ -78,18 +78,25 @@ struct SpriteRon {
     width: f32,
     height: f32,
 }
-
+#[derive(Debug, Clone)]
+pub struct RonResult {
+    pub name_to_id: HashMap<String, u32>,
+    pub ron: String,
+}
 
 pub fn to_ron(
     frames: &HashMap<String, texture_packer::Frame>,
     image_width: u32,
     image_height: u32,
-) -> (String, Vec<String>) {
+) -> RonResult {
     let mut i_to_name = vec![];
+
+    let mut frames:Vec<_> = frames.iter().collect();
+    frames.sort_by_key(|el|el.1.frame.x);
+
     let frames_map = frames
         .iter()
-        .enumerate()
-        .map(|(_i, el)| {
+        .map(|el| {
             // let (name, frame)
             let name = el.0;
             let frame = el.1;
@@ -102,22 +109,44 @@ pub fn to_ron(
             }
         })
         .collect();
+    // let frames_map = frames
+    //     .iter()
+    //     .map(|el| {
+    //         // let (name, frame)
+    //         let name = el.0;
+    //         let frame = el.1;
+    //         i_to_name.push(name.to_string());
+    //         SpriteRon {
+    //             x: frame.frame.x as f32,
+    //             y: frame.frame.y as f32,
+    //             width: frame.frame.w as f32,
+    //             height: frame.frame.h as f32,
+    //         }
+    //     })
+    //     .collect();
 
-    println!("    fn sprite_id_for_name(name: &str) -> usize {{");
-    for (i, name) in i_to_name.iter().enumerate() {
-        println!("        if name==\"{}\"{{",name );
-        println!("            return {};", i);
-        println!("        }}");
-    }
-    println!(r#"        panic!("sprite for name not found {{:?}}", name);"#);
-    println!("    }}");
+    let name_to_id: HashMap<String, u32> =  i_to_name.iter().enumerate().map(|(i, name)|(name.to_string(), i as u32)).collect();
+
+    // println!("    fn sprite_id_for_name(name: &str) -> usize {{");
+    // for (i, name) in i_to_name.iter().enumerate() {
+    //     println!("        if name==\"{}\"{{",name );
+    //     println!("            return {};", i);
+    //     println!("        }}");
+    // }
+    // println!(r#"        panic!("sprite for name not found {{:?}}", name);"#);
+    // println!("    }}");
     let ron = Ron { 
         spritesheet_width: image_width as f32,
         spritesheet_height: image_height as f32,
         sprites: frames_map
     };
 
-    (ron::ser::to_string_pretty(&ron, ron::ser::PrettyConfig::default()).unwrap(), i_to_name)
+    // (ron::ser::to_string_pretty(&ron, ron::ser::PrettyConfig::default()).unwrap(), map)
+
+    RonResult{
+        name_to_id,
+        ron: ron::ser::to_string_pretty(&ron, ron::ser::PrettyConfig::default()).unwrap()
+    }
 }
 
 #[cfg(test)]

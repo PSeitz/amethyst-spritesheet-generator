@@ -24,6 +24,7 @@ pub fn generate(config: spritesheet_generator_config::SpritesheetGeneratorConfig
         border_padding: config.border_padding,
         allow_rotation: false,
         texture_outlines: false,
+        trim: false,
         ..Default::default()
     };
     let mut packer = TexturePacker::new_skyline(config);
@@ -31,24 +32,16 @@ pub fn generate(config: spritesheet_generator_config::SpritesheetGeneratorConfig
         packer.pack_own(file_textures.file.name, file_textures.texture);
     }
 
-    // // Save Json
-    // let atlas = spritesheet::to_atlas(
-    //     packer.get_frames(),
-    //     packer.width(),
-    //     packer.height(),
-    // );
-    // let json_path = format!("{}{}.json", output_folder, output_file_name);
-
-    // let json_file = File::create(json_path).unwrap();
-    // serde_json::to_writer_pretty(json_file, &atlas).unwrap();
-
-    let ron_str = spritesheet::to_ron(
+    let res = spritesheet::to_ron(
         packer.get_frames(),
         packer.width(),
         packer.height(),
-    ).0;
+    );
     let ron_path = format!("{}{}.ron", output_folder, output_file_name);
-    File::create(ron_path).unwrap().write_all(ron_str.as_bytes()).unwrap();
+    File::create(ron_path).unwrap().write_all(res.ron.as_bytes()).unwrap();
+
+    let name_to_id_pat = format!("{}{}_name_to_id.json", output_folder, output_file_name);
+    File::create(name_to_id_pat).unwrap().write_all(serde_json::to_string(&res.name_to_id).unwrap().as_bytes()).unwrap();
 
     // Save Image
     let exporter = ImageExporter::export(&packer).unwrap();
